@@ -1,8 +1,6 @@
 # alpha_vantage
 
-[![Build Status](https://travis-ci.org/RomelTorres/alpha_vantage.png?branch=master)](https://travis-ci.org/RomelTorres/alpha_vantage)
 [![PyPI version](https://badge.fury.io/py/alpha-vantage.svg)](https://badge.fury.io/py/alpha-vantage)
-[![Documentation Status](https://readthedocs.org/projects/alpha-vantage/badge/?version=latest)](http://alpha-vantage.readthedocs.io/en/latest/?badge=latest)
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/RomelTorres/alpha_vantage.svg)](http://isitmaintained.com/project/RomelTorres/alpha_vantage "Average time to resolve an issue")
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/RomelTorres/alpha_vantage.svg)](http://isitmaintained.com/project/RomelTorres/alpha_vantage "Percentage of issues still open")
 
@@ -10,10 +8,11 @@
 
 Alpha Vantage delivers a free API for real time financial data and most used finance indicators in a simple json or pandas format. This module implements a python interface to the free API provided by [Alpha Vantage](https://www.alphavantage.co/). It requires a free API key, that can be requested from http://www.alphavantage.co/support/#api-key. You can have a look at all the API calls available in their [API documentation](https://www.alphavantage.co/documentation/).
 
-For code-less access to the APIs, you may also consider the official [Google Sheet Add-on](https://gsuite.google.com/marketplace/app/alpha_vantage_market_data/434809773372) or the [Microsoft Excel Add-on](https://appsource.microsoft.com/en-us/product/office/WA200001365) by Alpha Vantage. Check out [this](https://medium.com/@patrick.collins_58673/stock-api-landscape-5c6e054ee631) guide for some common tips on working with financial market data. 
+For code-less access to financial market data, you may also consider [Wisesheets](https://www.wisesheets.io/) or the official [Google Sheet Add-on](https://gsuite.google.com/marketplace/app/alpha_vantage_market_data/434809773372) or the [Microsoft Excel Add-on](https://appsource.microsoft.com/en-us/product/office/WA200001365) by Alpha Vantage. Check out [this](https://medium.com/alpha-vantage/best-stock-market-apis-in-2026-e8a982b1ea0c) guide for some common tips on working with financial market data. 
 
 ## News
 
+* From version 3.0.0 onwards, all options, commodities, and economic indicators are supported, as well as various additional features in alpha intelligence and fundamental data. All sector performance, extended intraday, and the FCAS crypto rating have been deprecated. Support for the month parameter for technical indicators and entitlement, as necessary, have also been added. This release is also friendly for porting from [IEX Cloud](https://iexcloud.org/), which was shut down in 2024. 
 * From version 2.3.0 onwards, fundamentals data and extended intraday is supported.
 * From version 2.2.0 onwards, asyncio support now provided. See below for more information. 
 * From version 2.1.3 onwards, [rapidAPI](https://rapidapi.com/alphavantage/api/alpha-vantage/) key integration is now available.
@@ -38,6 +37,8 @@ git clone https://github.com/RomelTorres/alpha_vantage.git
 pip install -e alpha_vantage
 ```
 
+✨ New! Don't want to write any code? Try out [https://trading-agents.ai/](https://trading-agents.ai/) (#1 trending on Github), which uses the Alpha Vantage API at the backend.
+
 ## Usage
 To get data from the API, simply import the library and call the object with your API key. Next, get ready for some awesome, free, realtime finance data. Your API key may also be stored in the environment variable ``ALPHAVANTAGE_API_KEY``.
 ```python
@@ -45,6 +46,17 @@ from alpha_vantage.timeseries import TimeSeries
 ts = TimeSeries(key='YOUR_API_KEY')
 # Get json object with the intraday data and another with  the call's metadata
 data, meta_data = ts.get_intraday('GOOGL')
+```
+To query data from a specific month in history, you may use the 'month' parameter for various features.
+```python
+from alpha_vantage.timeseries import TimeSeries
+from alpha_vantage.techindicators import TechIndicators
+ts = TimeSeries(key='YOUR_API_KEY')
+ti = TechIndicators(key='YOUR_API_KEY')
+# Get json object with the 30-min interval intraday data and another with  the call's metadata for January, 2014.
+data, meta_data = ts.get_intraday('GOOGL', month='2014-01', interval='30min')
+#Get json object with the 30-min interval simple moving average (SMA) values and another with  the call's metadata for January, 2014.
+data, meta_data = ti.get_sma('GOOGL', month='2014-01', interval='30min')
 ```
 You may also get a key from [rapidAPI](https://rapidapi.com/alphavantage/api/alpha-vantage-alpha-vantage-default). Use your rapidAPI key for the key variable, and set ```rapidapi=True```
 
@@ -57,7 +69,7 @@ Internally there is a retries counter, that can be used to minimize connection e
 ```python
 ts = TimeSeries(key='YOUR_API_KEY',retries='YOUR_RETRIES')
 ```
-The library supports giving its results as json dictionaries (default), pandas dataframe (if installed) or csv, simply pass the parameter output_format='pandas' to change the format of the output for all the API calls in the given class. Please note that some API calls do not support the csv format (namely ```ForeignExchange, SectorPerformances and TechIndicators```) because the API endpoint does not support the format on their calls either.
+The library supports giving its results as json dictionaries (default), pandas dataframe (if installed) or csv, simply pass the parameter output_format='pandas' to change the format of the output for all the API calls in the given class. Please note that some API calls do not support the csv format (namely ```ForeignExchange and TechIndicators```) because the API endpoint does not support the format on their calls either.
 
 ```python
 ts = TimeSeries(key='YOUR_API_KEY',output_format='pandas')
@@ -119,26 +131,6 @@ plt.show()
 ```
 Giving us as output:
 ![alt text](images/docs_ti_msft_example.png?raw=True "MSFT minute value plot example")
-
-### Sector Performance
-We can also plot sector performance just as easy:
-
-```python
-from alpha_vantage.sectorperformance import SectorPerformances
-import matplotlib.pyplot as plt
-
-sp = SectorPerformances(key='YOUR_API_KEY', output_format='pandas')
-data, meta_data = sp.get_sector()
-data['Rank A: Real-Time Performance'].plot(kind='bar')
-plt.title('Real Time Performance (%) per Sector')
-plt.tight_layout()
-plt.grid()
-plt.show()
-```
-
-Giving us as output:
-
-![alt text](images/docs_sp_rt_example.png?raw=True "Real Time Sector Performance")
 
 ### Crypto currencies.
 
@@ -237,12 +229,10 @@ The code documentation can be found at https://alpha-vantage.readthedocs.io/en/l
 ## Contributing
 Contributing is always welcome. Just contact us on how best you can contribute, add an issue, or make a PR. 
 
-## TODOs:
-* The integration tests are not being run at the moment within travis, gotta fix them to run.
-* Add test for csv calls as well.
-* Add tests for incompatible parameter raise errors.
-* Github actions & other items in the issues page. 
-
+## Community Pulses:
+* Dr. Martinez, a thought leader in FP&A, has picked Alpha Vantage as the [best overall](https://www.linkedin.com/pulse/what-best-stock-market-apis-2026-christian-martinez-hm20e/) stock market API. 
+* iexcloud.org, an popular website (note: the website is not owned by IEX) tracking the closure of IEX Cloud, has highlighted Alpha Vantage API as a [leading market data solution in the agentic AI era](https://iexcloud.org/top-stock-api-guide).
+* Alpha Vantage API leads multiple FY2026 stock market data API reviews by leading developer tools & quantitative investing publications including [Data Driven Investors](https://medium.datadriveninvestor.com/top-stock-market-apis-you-must-be-aware-of-80c5d3a5e1cb), Data Science Collective ([highlight #1](https://medium.com/data-science-collective/best-stock-market-data-api-in-the-ai-agent-era-4b8ae4cf2ff0), [highlight #2](https://medium.com/data-science-collective/the-best-stock-market-apis-in-2026-b74d0fe8ac41)), [Hackernoon](https://hackernoon.com/best-stock-apis-in-2026-an-in-depth-review), and [API Markets](https://api.market/blog/MagicAPI/stock-market-api/best-api-for-stock-market-data-all-over-the-world-2026).
 
 
 ## Contact:

@@ -2,13 +2,21 @@ from .alphavantage import AlphaVantage as av
 
 
 class TimeSeries(av):
+    """This class implements all the api calls to times series"""
 
-    """This class implements all the api calls to times series
-    """
     @av._output_format
     @av._call_api_on_func
-    def get_intraday(self, symbol, interval='15min', outputsize='compact'):
-        """ Return intraday time series in two json objects as data and
+    def get_intraday(
+        self,
+        symbol: str,
+        interval: str = "15min",
+        outputsize: str = "compact",
+        month: str = None,
+        extended_hours: str = "true",
+        adjusted: str = "true",
+        entitlement=None,
+    ):
+        """Return intraday time series in two json objects as data and
         meta_data. It raises ValueError when problems arise
 
         Keyword Arguments:
@@ -20,34 +28,27 @@ class TimeSeries(av):
                 'compact' and 'full; the first returns the last 100 points in the
                 data series, and 'full' returns the full-length intraday times
                 series, commonly above 1MB (default 'compact')
+            month: If not None, specify a year and month to get data, supported
+                format is YYYY-MM. For example "2009-01" (default None)
+            extended_hours: By default, extended_hours=true and the output time series
+                will include both the regular trading hours and the extended trading hours
+                (4:00am to 8:00pm Eastern Time for the US market). Set extended_hours=false
+                to query regular trading hours (9:30am to 4:00pm US Eastern Time) only.
+                (default 'true')
+            adjusted: By default, adjusted=true and the output time series is adjusted by
+                historical split and dividend events. Set adjusted=false to
+                query raw (as-traded) intraday values.
+                (default 'true')
+            entitlement:  Supported values are 'realtime' for realtime US stock market data
+                or 'delayed' for 15-minute delayed US stock market data
         """
         _FUNCTION_KEY = "TIME_SERIES_INTRADAY"
-        return _FUNCTION_KEY, "Time Series ({})".format(interval), 'Meta Data'
+        return _FUNCTION_KEY, "Time Series ({})".format(interval), "Meta Data"
 
     @av._output_format
     @av._call_api_on_func
-    def get_intraday_extended(self, symbol, interval='15min', slice='year1month1', adjusted=True):
-        """ Return extended intraday time series in one csv_reader object.
-        It raises ValueError when problems arise
-
-        Keyword Arguments:
-            symbol:  the symbol for the equity we want to get its data
-            interval:  time interval between two conscutive values,
-                supported values are '1min', '5min', '15min', '30min', '60min'
-                (default '15min')
-            slice: the trailing 2 years of intraday data is evenly divided into
-                24 "slices" - year1month1, year1month2, ..., year2month12
-            adjusted: By default, adjusted=true and the output time series is 
-                adjusted by historical split and dividend events. 
-                Set adjusted=false to query raw (as-traded) intraday values.
-        """
-        _FUNCTION_KEY = "TIME_SERIES_INTRADAY_EXTENDED"
-        return _FUNCTION_KEY, "Time Series ({})".format(interval), 'Meta Data'
-
-    @av._output_format
-    @av._call_api_on_func
-    def get_daily(self, symbol, outputsize='compact'):
-        """ Return daily time series in two json objects as data and
+    def get_daily(self, symbol, outputsize="compact"):
+        """Return daily time series in two json objects as data and
         meta_data. It raises ValueError when problems arise
 
         Keyword Arguments:
@@ -58,12 +59,12 @@ class TimeSeries(av):
                 series, commonly above 1MB (default 'compact')
         """
         _FUNCTION_KEY = "TIME_SERIES_DAILY"
-        return _FUNCTION_KEY, 'Time Series (Daily)', 'Meta Data'
+        return _FUNCTION_KEY, "Time Series (Daily)", "Meta Data"
 
     @av._output_format
     @av._call_api_on_func
-    def get_daily_adjusted(self, symbol, outputsize='compact'):
-        """ Return daily adjusted (date, daily open, daily high, daily low,
+    def get_daily_adjusted(self, symbol, outputsize="compact", entitlement=None):
+        """Return daily adjusted (date, daily open, daily high, daily low,
         daily close, daily split/dividend-adjusted close, daily volume)
         time series in two json objects as data and
         meta_data. It raises ValueError when problems arise
@@ -74,14 +75,16 @@ class TimeSeries(av):
                 'compact' and 'full; the first returns the last 100 points in the
                 data series, and 'full' returns the full-length daily times
                 series, commonly above 1MB (default 'compact')
+            entitlement:  Supported values are 'realtime' for realtime US stock market data
+                or 'delayed' for 15-minute delayed US stock market data
         """
         _FUNCTION_KEY = "TIME_SERIES_DAILY_ADJUSTED"
-        return _FUNCTION_KEY, 'Time Series (Daily)', 'Meta Data'
+        return _FUNCTION_KEY, "Time Series (Daily)", "Meta Data"
 
     @av._output_format
     @av._call_api_on_func
     def get_weekly(self, symbol):
-        """ Return weekly time series in two json objects as data and
+        """Return weekly time series in two json objects as data and
         meta_data. It raises ValueError when problems arise
 
         Keyword Arguments:
@@ -89,12 +92,12 @@ class TimeSeries(av):
 
         """
         _FUNCTION_KEY = "TIME_SERIES_WEEKLY"
-        return _FUNCTION_KEY, 'Weekly Time Series', 'Meta Data'
+        return _FUNCTION_KEY, "Weekly Time Series", "Meta Data"
 
     @av._output_format
     @av._call_api_on_func
     def get_weekly_adjusted(self, symbol):
-        """  weekly adjusted time series (last trading day of each week,
+        """weekly adjusted time series (last trading day of each week,
         weekly open, weekly high, weekly low, weekly close, weekly adjusted
         close, weekly volume, weekly dividend) of the equity specified,
         covering up to 20 years of historical data.
@@ -103,12 +106,12 @@ class TimeSeries(av):
 
         """
         _FUNCTION_KEY = "TIME_SERIES_WEEKLY_ADJUSTED"
-        return _FUNCTION_KEY, 'Weekly Adjusted Time Series', 'Meta Data'
+        return _FUNCTION_KEY, "Weekly Adjusted Time Series", "Meta Data"
 
     @av._output_format
     @av._call_api_on_func
     def get_monthly(self, symbol):
-        """ Return monthly time series in two json objects as data and
+        """Return monthly time series in two json objects as data and
         meta_data. It raises ValueError when problems arise
 
         Keyword Arguments:
@@ -116,12 +119,12 @@ class TimeSeries(av):
 
         """
         _FUNCTION_KEY = "TIME_SERIES_MONTHLY"
-        return _FUNCTION_KEY, 'Monthly Time Series', 'Meta Data'
+        return _FUNCTION_KEY, "Monthly Time Series", "Meta Data"
 
     @av._output_format
     @av._call_api_on_func
     def get_monthly_adjusted(self, symbol):
-        """ Return monthly time series in two json objects as data and
+        """Return monthly time series in two json objects as data and
         meta_data. It raises ValueError when problems arise
 
         Keyword Arguments:
@@ -129,25 +132,26 @@ class TimeSeries(av):
 
         """
         _FUNCTION_KEY = "TIME_SERIES_MONTHLY_ADJUSTED"
-        return _FUNCTION_KEY, 'Monthly Adjusted Time Series', 'Meta Data'
+        return _FUNCTION_KEY, "Monthly Adjusted Time Series", "Meta Data"
 
     @av._output_format
     @av._call_api_on_func
-    def get_quote_endpoint(self, symbol):
-        """ Return the latest price and volume information for a
+    def get_quote_endpoint(self, symbol, entitlement=None):
+        """Return the latest price and volume information for a
          security of your choice
 
         Keyword Arguments:
             symbol:  the symbol for the equity we want to get its data
-
+            entitlement:  Supported values are 'realtime' for realtime US stock market data
+                or 'delayed' for 15-minute delayed US stock market data
         """
         _FUNCTION_KEY = "GLOBAL_QUOTE"
-        return _FUNCTION_KEY, 'Global Quote', None
+        return _FUNCTION_KEY, "Global Quote", None
 
     @av._output_format
     @av._call_api_on_func
     def get_symbol_search(self, keywords):
-        """ Return best matching symbols and market information
+        """Return best matching symbols and market information
         based on keywords. It raises ValueError when problems arise
 
         Keyword Arguments:
@@ -155,28 +159,13 @@ class TimeSeries(av):
 
         """
         _FUNCTION_KEY = "SYMBOL_SEARCH"
-        return _FUNCTION_KEY, 'bestMatches', None
-
+        return _FUNCTION_KEY, "bestMatches", None
 
     @av._output_format
     @av._call_api_on_func
-    def get_listing_status(self):
+    def get_market_status(self):
+        """Return current market status (open vs. closed) of major trading venues.
+        It raises ValueError when problems arise
         """
-        Returns a list of active or delisted US stocks and ETFs, either as of the
-        latest trading day or at a specific time in history. The endpoint is
-        positioned to facilitate equity research on asset lifecycle and survivorship.
-
-        Keyword Arguments:
-            date:   If no date is set, the API endpoint will return a list of active
-                    or delisted symbols as of the latest trading day. If a date is set,
-                    the API endpoint will "travel back" in time and return a list of
-                    active or delisted symbols on that particular date in history.
-                    Any YYYY-MM-DD date later than 2010-01-01 is supported.
-                    For example, date=2013-08-03
-
-            state:  By default, state=active and the API will return a list of actively
-                    traded stocks and ETFs. Set state=delisted to query a list of
-                    delisted assets.
-        """
-        _FUNCTION_KEY = 'LISTING_STATUS'
-        return _FUNCTION_KEY, 'date', 'state'
+        _FUNCTION_KEY = "MARKET_STATUS"
+        return _FUNCTION_KEY, "markets", None
